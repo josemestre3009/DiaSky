@@ -86,7 +86,7 @@ def evolution_webhook(path_token: str, payload: dict, db: DB, x_webhook_secret: 
         key = item.get("key", {})
         group_jid = key.get("remoteJid", "")
         message_id = key.get("id")
-        if group_jid != config.operation_group_jid or not message_id:
+        if group_jid not in config.operation_groups or not message_id:
             # Log routing metadata only. Payload text can contain customer PII.
             logger.info("Ignored webhook message event=%s group=%s has_message_id=%s", payload.get("event"), group_jid, bool(message_id))
             continue

@@ -29,7 +29,7 @@ Si Evolution admite un encabezado personalizado, usa además `X-Webhook-Secret` 
 
 ## Variables
 
-`.env.example` enumera las variables requeridas: Evolution cloud, JID de grupo, creadores autorizados, destinatario, OpenRouter, PostgreSQL, token admin y secreto webhook. Nunca versionar `.env`.
+`.env.example` enumera las variables requeridas: Evolution cloud, JIDs de grupos operativos separados por comas en `OPERATION_GROUP_JIDS`, creadores autorizados, destinatario, OpenRouter, PostgreSQL, token admin y secreto webhook. Nunca versionar `.env`.
 
 ## EasyPanel
 

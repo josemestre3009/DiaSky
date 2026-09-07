@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     evolution_instance_name: str = ""
     evolution_webhook_secret: str = ""
     evolution_send_text_path: str = "/message/sendText/{instance}"
-    operation_group_jid: str
+    operation_group_jids: str
     authorized_creator_jids: str
     report_recipient_jid: str
     openrouter_api_key: str = ""
@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     @property
     def authorized_creators(self) -> set[str]:
         return {jid.strip() for jid in self.authorized_creator_jids.split(",") if jid.strip()}
+
+    @property
+    def operation_groups(self) -> set[str]:
+        return {jid.strip() for jid in self.operation_group_jids.split(",") if jid.strip()}
 
 
 @lru_cache
