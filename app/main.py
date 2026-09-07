@@ -126,6 +126,10 @@ def get_order(order_id: int, db: DB):
         raise HTTPException(404, "Order not found")
     events = db.scalars(select(OperationEvent).where(OperationEvent.order_id == order_id).order_by(OperationEvent.occurred_at)).all()
     assignments = db.scalars(select(OrderAssignment).where(OrderAssignment.order_id == order_id).order_by(OrderAssignment.assigned_at)).all()
+    event_messages = {
+        message.whatsapp_id: message.text
+        for message in db.scalars(select(Message).where(Message.whatsapp_id.in_([event.whatsapp_message_id for event in events])))
+    }
     return {"id": order.id, "date": order.scheduled_date, "type": order.operation_type, "locality": order.locality,
             "customer_name": order.customer_name, "customer_document": order.customer_document, "address": order.address,
             "phones": order.phones, "email": order.email, "plan": order.plan, "installation_value": order.installation_value,
@@ -133,6 +137,7 @@ def get_order(order_id: int, db: DB):
             "availability_note": order.availability_note, "requires_customer_confirmation": order.requires_customer_confirmation,
             "safety_risk": order.safety_risk, "assignments": [{"technician": a.technician_name, "assigned_at": a.assigned_at} for a in assignments],
             "events": [{"status": e.status, "reason_code": e.reason_code, "reason_text": e.reason_text,
+                        "report_text": event_messages.get(e.whatsapp_message_id, ""),
                         "confidence": e.confidence, "source": e.source, "occurred_at": e.occurred_at} for e in events]}
 
 
