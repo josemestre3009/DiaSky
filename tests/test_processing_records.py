@@ -7,6 +7,12 @@ def test_recognizes_ip_only_service_report() -> None:
     assert extract_order(text)[0] == "revision"
 
 
+def test_recognizes_structured_record_with_retirar() -> None:
+    text = "✅ CONEJO\nANA ERIKA NORIEGA BULA2\n192.168.85.47 Retirar equipos"
+    assert individual_record(text)
+    assert extract_order(text)[0] == "retiro"
+
+
 def test_extracts_operation_types() -> None:
     assert extract_order("Cambiar ONU 5G Conejo")[0] == "cambio_onu"
     assert extract_order("Instalar IPTV en La Junta")[0] == "instalacion_iptv"

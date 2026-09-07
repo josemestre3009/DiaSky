@@ -108,12 +108,15 @@ def classify_with_openrouter(text: str) -> Classification:
 
 def individual_record(text: str) -> bool:
     lines = [line.strip() for line in text.splitlines() if line.strip()]
-    has_operation = bool(re.search(r"instal|retiro|traslado|revisi[oó]n|onu|iptv|falla", text, re.I))
+    has_operation = bool(re.search(r"instal|retir|traslado|revisi[oó]n|onu|iptv|falla", text, re.I))
     has_ip = bool(re.search(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", text))
     has_identifier = bool(re.search(r"\b\d{7,}\b", text)) or has_ip
+    has_record_shape = bool(re.match(r"^\s*✅\s*[^\n]+\n[^\n]{4,}", text))
     # Field reports commonly contain only client, IP, and a service symptom.
     has_symptom = bool(re.search(r"no se conect|sin internet|no enciende|navegaci[oó]n lenta|cable", text, re.I))
-    return (has_operation or (has_ip and has_symptom)) and has_identifier and len(lines) >= 2
+    # Authorized coordinators use an individual record format; accept it even when
+    # the activity wording is new, while still requiring a customer/IP identifier.
+    return (has_operation or has_record_shape or (has_ip and has_symptom)) and has_identifier and len(lines) >= 2
 
 
 def extract_order(text: str) -> tuple[str, str | None, str | None]:
@@ -127,6 +130,8 @@ def extract_order(text: str) -> tuple[str, str | None, str | None]:
         operation = "reparacion_fibra"
     elif "nodo" in lowered:
         operation = "incidencia_nodo"
+    elif re.search(r"\bretir", lowered):
+        operation = "retiro"
     if operation == "operacion" and re.search(r"no se conect|sin internet|no enciende|navegaci[oó]n lenta|cable", lowered):
         operation = "revision"
     locality = None
