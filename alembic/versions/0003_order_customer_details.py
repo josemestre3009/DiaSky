@@ -10,12 +10,18 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("orders", sa.Column("customer_document", sa.String(32), nullable=True))
-    op.add_column("orders", sa.Column("address", sa.Text(), nullable=True))
-    op.add_column("orders", sa.Column("phones", sa.JSON(), nullable=True))
-    op.add_column("orders", sa.Column("email", sa.String(255), nullable=True))
-    op.add_column("orders", sa.Column("plan", sa.String(128), nullable=True))
-    op.add_column("orders", sa.Column("installation_value", sa.String(64), nullable=True))
+    columns = {column["name"] for column in sa.inspect(op.get_bind()).get_columns("orders")}
+    additions = (
+        ("customer_document", sa.String(32)),
+        ("address", sa.Text()),
+        ("phones", sa.JSON()),
+        ("email", sa.String(255)),
+        ("plan", sa.String(128)),
+        ("installation_value", sa.String(64)),
+    )
+    for name, column_type in additions:
+        if name not in columns:
+            op.add_column("orders", sa.Column(name, column_type, nullable=True))
 
 
 def downgrade() -> None:
