@@ -12,6 +12,11 @@ def test_classifies_completion() -> None:
     assert classify("listo se le cambio el cable").status == OrderStatus.COMPLETADA
 
 
+def test_classifies_technical_closures_without_listo() -> None:
+    for text in ("Se cambio ONU 5G", "Se retiró el equipo", "Se reparó la fibra", "Quedó funcionando el servicio"):
+        assert classify(text).status == OrderStatus.COMPLETADA
+
+
 def test_classifies_temporary_access_blocker_as_pending() -> None:
     result = classify("No se pudo porque sin el marido no dejaba entrar")
     assert result.status == OrderStatus.PENDIENTE

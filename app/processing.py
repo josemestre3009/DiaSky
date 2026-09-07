@@ -37,7 +37,7 @@ def classify(text: str) -> Classification:
     normalized = " ".join(text.lower().split())
     if re.search(r"queda pendiente.*(iptv|onu|router|cable)|no se pudo dejar.*(iptv|onu|router|cable)", normalized):
         return Classification(OrderStatus.COMPLETADA_PARCIAL, "MATERIAL_FALTANTE", "La actividad principal se realizó; queda un componente pendiente.")
-    if re.search(r"\b(listo|se le instal[oó]|se le retira|se le cambi[ao]|se restablece)\b", normalized):
+    if re.search(r"\b(listo|se le instal[oó]|se (le )?retir[oaó]|se (le )?cambi[aoó]|se restablec|se repar[oó]|se solucion[oó]|qued[oó] (funcionando|trabajando|con servicio)|servicio restablecido)\b", normalized):
         return Classification(OrderStatus.COMPLETADA)
     if re.search(r"no hay adulto|solo (esta|hay) (un |el )?(ni[nñ]o|menor)|menores de edad", normalized):
         return Classification(OrderStatus.PENDIENTE, "MENOR_SIN_ADULTO", "No había un adulto responsable para autorizar la operación.")
