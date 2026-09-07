@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -23,6 +24,10 @@ def assign_prior_team(db: Session, order: Order, before: datetime) -> None:
                                    assigned_at=assignment_message.occurred_at))
 
 
+def operation_date(occurred_at: datetime) -> object:
+    return occurred_at.astimezone(ZoneInfo(settings().timezone)).date()
+
+
 def process_message(db: Session, message: Message) -> None:
     config = settings()
     if message.sender_jid in config.authorized_creators and individual_record(message.text):
@@ -30,7 +35,7 @@ def process_message(db: Session, message: Message) -> None:
             operation, locality, customer = extract_order(message.text)
             details = extract_customer_details(message.text)
             order = Order(source_message_id=message.whatsapp_id, group_jid=message.group_jid,
-                          scheduled_date=message.occurred_at.date(), operation_type=operation,
+                          scheduled_date=operation_date(message.occurred_at), operation_type=operation,
                           locality=locality, customer_name=customer, **details)
             db.add(order)
             db.flush()

@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -146,6 +146,18 @@ def correct_order(order_id: int, body: CorrectionInput, db: DB):
                       reason_code=body.reason_code, reason_text=body.reason_text))
     db.commit()
     return {"id": order.id, "status": order.current_status}
+
+
+@app.delete("/orders/{order_id}", status_code=204, dependencies=[Depends(admin)])
+def delete_order(order_id: int, db: DB):
+    order = db.get(Order, order_id)
+    if not order:
+        raise HTTPException(404, "Order not found")
+    db.execute(delete(OperationEvent).where(OperationEvent.order_id == order_id))
+    db.execute(delete(OrderAssignment).where(OrderAssignment.order_id == order_id))
+    db.execute(delete(Correction).where(Correction.order_id == order_id))
+    db.delete(order)
+    db.commit()
 
 
 @app.get("/reports/daily", dependencies=[Depends(admin)])
